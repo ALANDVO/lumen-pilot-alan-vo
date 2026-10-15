@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "lumen-pilot-alan-vo",
+  "owner": "ALANDVO",
+  "email": "alanvo@gmail.com",
+  "domain": "AI/ML developer tools",
+  "summary": "Work in progress: lumen-pilot-alan-vo",
+  "workflows": [
+    "iOS device detection and connection management via usbmuxd",
+    "SwiftPM build orchestration for iOS targets with progress tracking",
+    "App bundle installation and launch on physical iOS devices"
+  ],
+  "auth": "oidc-keycloak-saml-broker",
+  "llm_providers": [
+    "openai-compatible",
+    "anthropic",
+    "gemini",
+    "ollama"
+  ],
+  "status": "work-in-progress"
+}
