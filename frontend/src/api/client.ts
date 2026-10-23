@@ -53,6 +53,20 @@ export interface BuildListResponse {
   builds: BuildResponse[]
 }
 
+export interface AdvisoryResponse {
+  provider: string
+  model: string
+  summary: string
+  suggestions: string[]
+  timestamp: string
+  advisory: boolean
+}
+
+export interface BuildExecuteResponse {
+  build: BuildResponse
+  advisory: AdvisoryResponse | null
+}
+
 export interface DeploymentRequest {
   build_id: string
   device_udid: string
@@ -92,6 +106,9 @@ export const api = {
     }),
     list: () => request<BuildListResponse>('/builds'),
     get: (id: string) => request<BuildResponse>(`/builds/${id}`),
+    execute: (id: string) => request<BuildExecuteResponse>(`/builds/${id}/execute`, {
+      method: 'POST',
+    }),
   },
   deployments: {
     create: (data: DeploymentRequest) => request<DeploymentResponse>('/deployments', {
@@ -100,5 +117,8 @@ export const api = {
     }),
     list: () => request<DeploymentListResponse>('/deployments'),
     get: (id: string) => request<DeploymentResponse>(`/deployments/${id}`),
+    execute: (id: string) => request<DeploymentResponse>(`/deployments/${id}/execute`, {
+      method: 'POST',
+    }),
   },
 }

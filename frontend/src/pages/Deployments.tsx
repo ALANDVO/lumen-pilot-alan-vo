@@ -6,6 +6,7 @@ function Deployments() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+  const [executing, setExecuting] = useState<string | null>(null)
   const [formData, setFormData] = useState<DeploymentRequest>({
     build_id: '',
     device_udid: '',
@@ -40,6 +41,19 @@ function Deployments() {
       setError(err instanceof Error ? err.message : 'Failed to create deployment')
     } finally {
       setCreating(false)
+    }
+  }
+
+  async function handleExecute(deploymentId: string) {
+    setExecuting(deploymentId)
+    setError(null)
+    try {
+      await api.deployments.execute(deploymentId)
+      await fetchDeployments()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to execute deployment')
+    } finally {
+      setExecuting(null)
     }
   }
 
@@ -103,6 +117,7 @@ function Deployments() {
                   <th>Device UDID</th>
                   <th>Status</th>
                   <th>Created</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -113,6 +128,16 @@ function Deployments() {
                     <td style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}>{deployment.device_udid}</td>
                     <td><span className={`status-badge status-${deployment.status.toLowerCase()}`}>{deployment.status}</span></td>
                     <td>{new Date(deployment.created_at).toLocaleString()}</td>
+                    <td>
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => handleExecute(deployment.id)}
+                        disabled={executing === deployment.id || deployment.status === 'installing' || deployment.status === 'launching'}
+                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.875rem' }}
+                      >
+                        {executing === deployment.id ? 'Executing...' : 'Execute'}
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
