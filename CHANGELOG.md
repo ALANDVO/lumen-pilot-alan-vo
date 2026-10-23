@@ -1,8 +1,19 @@
 # Changelog
 
+## 1.1.0 — work-in-progress checkpoint
+
+Partial code published for continued development. Known issues: STATUS.md.
+
 ## 1.0.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
+
+### Changed (2026-10-23)
+- Frontend: Added execute buttons to Builds and Deployments history tables
+- Frontend: Added LLM advisory display panel for build failures (provider, model, summary, suggestions)
+- API Client: Added `execute` methods for builds and deployments with advisory response types
+- Builds page: Execute action triggers build, refreshes list, shows advisory if returned
+- Deployments page: Execute action triggers deployment, refreshes list
 
 All notable changes to this project will be documented in this file.
 

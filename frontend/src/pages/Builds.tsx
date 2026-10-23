@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
-import { api, BuildRequest, BuildResponse } from '../api/client'
+import { api, BuildRequest, BuildResponse, AdvisoryResponse } from '../api/client'
 
 function Builds() {
   const [builds, setBuilds] = useState<BuildResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+  const [executing, setExecuting] = useState<string | null>(null)
+  const [advisory, setAdvisory] = useState<AdvisoryResponse | null>(null)
   const [formData, setFormData] = useState<BuildRequest>({
     project_path: '',
     configuration: 'debug',
@@ -42,6 +44,27 @@ function Builds() {
     } finally {
       setCreating(false)
     }
+  }
+
+  async function handleExecute(buildId: string) {
+    setExecuting(buildId)
+    setAdvisory(null)
+    setError(null)
+    try {
+      const result = await api.builds.execute(buildId)
+      if (result.advisory) {
+        setAdvisory(result.advisory)
+      }
+      await fetchBuilds()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to execute build')
+    } finally {
+      setExecuting(null)
+    }
+  }
+
+  function handleAdvisoryClose() {
+    setAdvisory(null)
   }
 
   if (loading) {
@@ -119,6 +142,7 @@ function Builds() {
                   <th>Target</th>
                   <th>Status</th>
                   <th>Created</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -130,6 +154,16 @@ function Builds() {
                     <td>{build.target}</td>
                     <td><span className={`status-badge status-${build.status.toLowerCase()}`}>{build.status}</span></td>
                     <td>{new Date(build.created_at).toLocaleString()}</td>
+                    <td>
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => handleExecute(build.id)}
+                        disabled={executing === build.id || build.status === 'running'}
+                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.875rem' }}
+                      >
+                        {executing === build.id ? 'Executing...' : 'Execute'}
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -137,6 +171,30 @@ function Builds() {
           </div>
         )}
       </div>
+      {advisory && (
+        <div className="card" style={{ borderColor: '#ffc107', marginTop: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 className="card-title" style={{ margin: 0, color: '#856404' }}>LLM Advisory</h2>
+            <button onClick={handleAdvisoryClose} style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', color: '#856404' }}>×</button>
+          </div>
+          <div style={{ background: '#fff3cd', padding: '1rem', borderRadius: '4px', border: '1px solid #ffc107' }}>
+            <p style={{ margin: '0 0 0.5rem', fontWeight: 600, color: '#856404' }}>
+              Provider: {advisory.provider} ({advisory.model}) — Advisory
+            </p>
+            <p style={{ margin: '0 0 1rem', color: '#856404' }}>{advisory.summary}</p>
+            {advisory.suggestions.length > 0 && (
+              <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#856404' }}>
+                {advisory.suggestions.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            )}
+            <p style={{ margin: '1rem 0 0', fontSize: '0.875rem', color: '#856404' }}>
+              Generated at {new Date(advisory.timestamp).toLocaleString()}. This is an AI-generated advisory; verify before applying.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
