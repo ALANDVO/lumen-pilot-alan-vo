@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { api, DeploymentRequest, DeploymentResponse } from '../api/client'
 
 function Deployments() {
@@ -7,9 +8,11 @@ function Deployments() {
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [executing, setExecuting] = useState<string | null>(null)
+  const [searchParams] = useSearchParams()
+  const initialDeviceUdid = searchParams.get('device_udid') || ''
   const [formData, setFormData] = useState<DeploymentRequest>({
     build_id: '',
-    device_udid: '',
+    device_udid: initialDeviceUdid,
   })
 
   useEffect(() => {

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { api, DeviceInfo } from '../api/client'
 
 function Devices() {
   const [devices, setDevices] = useState<DeviceInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
+  const navigate = useNavigate()
+ 
   useEffect(() => {
     async function fetchDevices() {
       try {
@@ -19,6 +21,10 @@ function Devices() {
     }
     fetchDevices()
   }, [])
+
+  function handleDeployToDevice(udid: string) {
+    navigate(`/deployments?device_udid=${encodeURIComponent(udid)}`)
+  }
 
   if (loading) {
     return (
@@ -60,6 +66,7 @@ function Devices() {
                   <th>UDID</th>
                   <th>iOS Version</th>
                   <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -69,6 +76,16 @@ function Devices() {
                     <td style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}>{device.udid}</td>
                     <td>{device.os_version}</td>
                     <td><span className={`status-badge status-${device.status.toLowerCase()}`}>{device.status}</span></td>
+                    <td>
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => handleDeployToDevice(device.udid)}
+                        disabled={device.status !== 'connected'}
+                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.875rem' }}
+                      >
+                        Deploy
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
