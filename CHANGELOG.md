@@ -72,3 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Devices: Device list with sync button, empty state
 - Builds: Create build form, build history table, execute with advisory
 - Deployments: Create deployment form, deployment history table, execute
+
+---
+
+Alan Vo · [alanvo.net](https://alanvo.net)

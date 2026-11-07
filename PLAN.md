@@ -70,3 +70,6 @@ Acceptance:
 - Supports OpenAI-compatible, Anthropic, Gemini, Ollama
 - Advisory responses labeled and grounded in logs
 
+---
+
+Alan Vo · [alanvo.net](https://alanvo.net)

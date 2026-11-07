@@ -221,3 +221,7 @@ MIT License — Copyright (c) 2026 Alan Vo <alanvo@gmail.com>
 ---
 
 *Lumen Pilot — Cross-platform iOS development without macOS*
+
+---
+
+Alan Vo · [alanvo.net](https://alanvo.net)
