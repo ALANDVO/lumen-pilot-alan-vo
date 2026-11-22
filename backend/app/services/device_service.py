@@ -1,6 +1,7 @@
 import subprocess
 import json
-from typing import List, Optional
+import shutil
+from typing import List, Optional, Dict
 from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +11,14 @@ from app.models import Device, DeviceStatus
 class DeviceService:
     def __init__(self, db: AsyncSession):
         self.db = db
+
+    @staticmethod
+    def _usbmuxd_available() -> bool:
+        """Check if usbmuxd tools (idevice_id, ideviceinfo) are available."""
+        return (
+            shutil.which("idevice_id") is not None
+            and shutil.which("ideviceinfo") is not None
+        )
 
     async def list_devices(self) -> List[Device]:
         result = await self.db.execute(select(Device).order_by(Device.created_at.desc()))
@@ -46,8 +55,14 @@ class DeviceService:
             await self.db.refresh(device)
         return device
 
-    async def scan_usb_devices(self) -> List[dict]:
-        """Scan for connected iOS devices via usbmuxd."""
+    async def scan_usb_devices(self) -> List[Dict[str, str]]:
+        """Scan for connected iOS devices via usbmuxd.
+
+        Returns empty list if usbmuxd tools are not available,
+        rather than failing silently.
+        """
+        if not self._usbmuxd_available():
+            return []
         try:
             result = subprocess.run(
                 ["idevice_id", "-l"],
