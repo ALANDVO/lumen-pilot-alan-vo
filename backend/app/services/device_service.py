@@ -95,8 +95,14 @@ class DeviceService:
             return []
 
     async def sync_devices(self) -> List[Device]:
-        """Sync local database with actual connected devices."""
+        """Sync local database with actual connected devices.
+
+        Devices present in the scan are upserted as CONNECTED. Devices that
+        were previously marked CONNECTED but are no longer seen over usbmuxd
+        are reconciled to DISCONNECTED so the device list reflects reality.
+        """
         usb_devices = await self.scan_usb_devices()
+        seen_udids = {d["udid"] for d in usb_devices}
         synced = []
         for usb_device in usb_devices:
             device = await self.upsert_device(
@@ -106,4 +112,14 @@ class DeviceService:
                 status=DeviceStatus.CONNECTED,
             )
             synced.append(device)
+
+        # Reconcile: any device still marked CONNECTED but absent from the
+        # latest scan is now considered DISCONNECTED.
+        result = await self.db.execute(
+            select(Device).where(Device.status == DeviceStatus.CONNECTED)
+        )
+        for stale in result.scalars().all():
+            if stale.udid not in seen_udids:
+                stale.status = DeviceStatus.DISCONNECTED
+        await self.db.commit()
         return synced

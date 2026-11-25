@@ -4,7 +4,7 @@ Each round completes one feature or repair. Future items are planned, not implem
 
 ## Current round
 
-core-skeleton
+device-management
 
 ## Roadmap
 
@@ -69,6 +69,17 @@ Acceptance:
 - Opt-in LLM analysis of build errors
 - Supports OpenAI-compatible, Anthropic, Gemini, Ollama
 - Advisory responses labeled and grounded in logs
+
+### device-sync-reconcile — Reconcile stale iOS devices on sync
+
+Status: done
+
+Acceptance:
+- Devices absent from the latest usbmuxd scan are marked disconnected
+
+Implementation: `backend/app/services/device_service.py`
+
+Tests: `backend/tests/test_devices.py`
 
 ---
 
