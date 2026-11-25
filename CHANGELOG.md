@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.0 — work-in-progress checkpoint
+
+Partial code published for continued development. Known issues: STATUS.md.
+
+## Unreleased
+
+- device-management: `sync_devices` now reconciles stale entries — devices previously CONNECTED but absent from the latest usbmuxd scan are marked DISCONNECTED. Added targeted test.
+
 ## 1.6.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
